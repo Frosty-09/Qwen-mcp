@@ -30,14 +30,16 @@ A dedicated, safe Model Context Protocol (MCP) server that empowers **Qwen Studi
 
 ## 💡 Why This Exists
 
-Desktop AI environments—such as **Qwen Studio**—and complex creative workstation software (like **DaVinci Resolve Studio**) operate within protected sandbox boundaries. By design, they cannot freely browse, modify, or control files on your Windows machine. 
+Desktop AI environments—such as **Qwen Studio**—and complex creative workstation software (like **DaVinci Resolve Studio**) operate within protected sandbox boundaries. By design, they cannot freely browse, modify, or control files on your Windows machine.
 
 When you want an AI assistant to assist with your codebase, automate scripting, or build plugins:
+
 - ❌ **The Old Way**: You are forced to manually copy and paste code back and forth between your editor and the AI chat window. The AI has zero context about the rest of your project structure, cannot verify changes, and cannot create or edit files directly.
 - ❌ **The Dangerous Way**: Giving an AI broad, unrestricted terminal or OS-level access risks accidental file deletion or damage to critical Windows system directories.
 
 ### The Solution: Qwen MCP
-**Qwen MCP** acts as a secure, purpose-built bridge. It lets you "feed" specific local folders and external projects directly to Qwen Studio through the standardized **Model Context Protocol (MCP)**. 
+
+**Qwen MCP** acts as a secure, purpose-built bridge. It lets you "feed" specific local folders and external projects directly to Qwen Studio through the standardized **Model Context Protocol (MCP)**.
 
 With Qwen MCP, Qwen Studio can autonomously explore your project tree, read files, write code, append changes, rename files, and perform regex searches—**strictly inside the project folders you choose to connect**.
 
@@ -125,7 +127,7 @@ cd Qwen-mcp
 
 ## 📋 Prerequisites
 
-- **Python 3.10+**: [Download Python](https://www.python.org/downloads/) *(ensure "Add Python to PATH" is checked on Windows)*.
+- **Python 3.10+**: [Download Python](https://www.python.org/downloads/) _(ensure "Add Python to PATH" is checked on Windows)_.
 - **Astral `uv` (Recommended)**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/) for instant, zero-setup execution.
 
 ```bash
@@ -146,7 +148,9 @@ You do **not** need to create virtual environments or manually install dependenc
 If you prefer a traditional Python virtual environment:
 
 #### On Windows:
+
 Double-click `install.cmd` or run:
+
 ```cmd
 python -m venv .venv
 .venv\Scripts\activate
@@ -154,6 +158,7 @@ pip install -r requirements.txt
 ```
 
 #### On Linux / macOS:
+
 ```bash
 chmod +x install.sh run.sh
 ./install.sh
@@ -172,11 +177,7 @@ Add the server configuration into your client's MCP settings file (such as Qwen 
   "mcpServers": {
     "qwen-mcp": {
       "command": "uvx",
-      "args": [
-        "--from",
-        "/ABSOLUTE/PATH/TO/Qwen-mcp",
-        "qwen-mcp"
-      ],
+      "args": ["--from", "/ABSOLUTE/PATH/TO/Qwen-mcp", "qwen-mcp"],
       "env": {
         "QWEN_MCP_ALLOW_EXTERNAL": "true"
       }
@@ -198,9 +199,7 @@ Add the server configuration into your client's MCP settings file (such as Qwen 
   "mcpServers": {
     "qwen-mcp": {
       "command": "python",
-      "args": [
-        "/ABSOLUTE/PATH/TO/Qwen-mcp/server.py"
-      ],
+      "args": ["/ABSOLUTE/PATH/TO/Qwen-mcp/server.py"],
       "env": {
         "QWEN_MCP_ALLOW_EXTERNAL": "true"
       }
@@ -216,13 +215,17 @@ Add the server configuration into your client's MCP settings file (such as Qwen 
 Once Qwen MCP is connected, you have two effortless ways to grant Qwen Studio access to your projects:
 
 ### 1. The Direct Folder Method (Internal)
+
 Simply create or copy your project folder inside `workspace/projects/`:
+
 ```text
 workspace/projects/my-video-tool/
 ```
+
 Qwen Studio will now recognize and interact with this project by the name `my-video-tool`.
 
 ### 2. The Shortcut Pointer Method (External — Recommended for Existing Work)
+
 If your project already lives elsewhere on Windows (for example, in your Documents, Desktop, or DaVinci Resolve directories), you don't need to move it!
 
 1. Create a `.txt` file inside `workspace/external/` named after your project, e.g., `davinci-plugin.txt`.
@@ -232,7 +235,7 @@ If your project already lives elsewhere on Windows (for example, in your Documen
    ```
 3. That's it! Qwen Studio can now read and write directly to `davinci-plugin` safely.
 
-*(You can also use the `qwen_register_external_project` tool from inside Qwen Studio to link external directories automatically).*
+_(You can also use the `qwen_register_external_project` tool from inside Qwen Studio to link external directories automatically)._
 
 ---
 
@@ -240,20 +243,20 @@ If your project already lives elsewhere on Windows (for example, in your Documen
 
 Qwen Studio automatically receives access to these 12 filesystem tools:
 
-| Tool | Description | Key Arguments |
-| :--- | :--- | :--- |
-| `qwen_status` | Checks server health, active workspace directory, and security flags. | _None_ |
-| `qwen_list_projects` | Lists all internal and external connected projects. | _None_ |
-| `qwen_create_project` | Creates a new project folder inside `workspace/projects/`. | `name` (string) |
-| `qwen_register_external_project` | Registers an external folder path via a `.txt` shortcut file. | `name`, `path`, `create` (bool) |
-| `qwen_resolve_project` | Resolves any project name to its actual absolute filesystem path. | `project` (string) |
-| `qwen_list_files` | Recursively or shallowly lists files and subdirectories. | `project`, `path`, `pattern`, `recursive` |
-| `qwen_read_file` | Reads file content as clean UTF-8 text or Base64 (for binaries). | `project`, `path` |
-| `qwen_write_file` | Writes or overwrites a file (auto-creates directories). | `project`, `path`, `content`, `encoding` |
-| `qwen_append_file` | Appends text or binary content to an existing or new file. | `project`, `path`, `content`, `encoding` |
-| `qwen_delete_file` | Deletes a file or directory (`recursive=true` for folders). | `project`, `path`, `recursive` |
-| `qwen_rename_file` | Renames or moves a file/folder within a project. | `project`, `old_path`, `new_path` |
-| `qwen_search_files` | Searches text/regex inside project files with line numbers. | `project`, `query`, `path`, `pattern`, `case_sensitive` |
+| Tool                             | Description                                                           | Key Arguments                                           |
+| :------------------------------- | :-------------------------------------------------------------------- | :------------------------------------------------------ |
+| `qwen_status`                    | Checks server health, active workspace directory, and security flags. | _None_                                                  |
+| `qwen_list_projects`             | Lists all internal and external connected projects.                   | _None_                                                  |
+| `qwen_create_project`            | Creates a new project folder inside `workspace/projects/`.            | `name` (string)                                         |
+| `qwen_register_external_project` | Registers an external folder path via a `.txt` shortcut file.         | `name`, `path`, `create` (bool)                         |
+| `qwen_resolve_project`           | Resolves any project name to its actual absolute filesystem path.     | `project` (string)                                      |
+| `qwen_list_files`                | Recursively or shallowly lists files and subdirectories.              | `project`, `path`, `pattern`, `recursive`               |
+| `qwen_read_file`                 | Reads file content as clean UTF-8 text or Base64 (for binaries).      | `project`, `path`                                       |
+| `qwen_write_file`                | Writes or overwrites a file (auto-creates directories).               | `project`, `path`, `content`, `encoding`                |
+| `qwen_append_file`               | Appends text or binary content to an existing or new file.            | `project`, `path`, `content`, `encoding`                |
+| `qwen_delete_file`               | Deletes a file or directory (`recursive=true` for folders).           | `project`, `path`, `recursive`                          |
+| `qwen_rename_file`               | Renames or moves a file/folder within a project.                      | `project`, `old_path`, `new_path`                       |
+| `qwen_search_files`              | Searches text/regex inside project files with line numbers.           | `project`, `query`, `path`, `pattern`, `case_sensitive` |
 
 ---
 
@@ -261,12 +264,12 @@ Qwen Studio automatically receives access to these 12 filesystem tools:
 
 You can configure operational limits via environment variables in your client config:
 
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `QWEN_MCP_ROOT` | `workspace/` | Path where `projects/` and `external/` are located. |
-| `QWEN_MCP_ALLOW_EXTERNAL` | `true` | Allows or blocks mapping external project shortcuts. |
-| `QWEN_MCP_ALLOW_CREATE_EXTERNAL_DIRS` | `true` | Automatically creates missing target directories when linking. |
-| `QWEN_MCP_MAX_READ_BYTES` | `2097152` *(2 MB)* | File size threshold before content is truncated or converted. |
+| Variable                              | Default            | Description                                                    |
+| :------------------------------------ | :----------------- | :------------------------------------------------------------- |
+| `QWEN_MCP_ROOT`                       | `workspace/`       | Path where `projects/` and `external/` are located.            |
+| `QWEN_MCP_ALLOW_EXTERNAL`             | `true`             | Allows or blocks mapping external project shortcuts.           |
+| `QWEN_MCP_ALLOW_CREATE_EXTERNAL_DIRS` | `true`             | Automatically creates missing target directories when linking. |
+| `QWEN_MCP_MAX_READ_BYTES`             | `2097152` _(2 MB)_ | File size threshold before content is truncated or converted.  |
 
 ---
 
@@ -284,6 +287,7 @@ You can configure operational limits via environment variables in your client co
 <summary><b>1. Why can't Qwen Studio find my project?</b></summary>
 
 Verify that:
+
 - For internal projects: A folder named `<project-name>` exists inside `workspace/projects/`.
 - For external projects: A text file named `<project-name>.txt` exists inside `workspace/external/` with a valid, absolute path on the first line.
 - You can ask the AI to run `qwen_list_projects` to see all active projects detected by the server.
@@ -293,18 +297,21 @@ Verify that:
 <summary><b>2. How do I give Qwen Studio access to DaVinci Resolve or Fusion scripts?</b></summary>
 
 Create a text file `workspace/external/davinci-scripts.txt` and paste the path to your DaVinci Resolve Fusion Scripts or Fuses directory. In Qwen Studio, refer to the project as `davinci-scripts`.
+
 </details>
 
 <details>
 <summary><b>3. Error: "Path escapes project root"</b></summary>
 
 The AI client attempted to access a path above the designated project directory. All file operations must stay within the root of the targeted project.
+
 </details>
 
 <details>
 <summary><b>4. uvx is not recognized on Windows</b></summary>
 
 Install Astral `uv` from https://docs.astral.sh/uv/ and restart your terminal or Qwen Studio so your system `PATH` updates.
+
 </details>
 
 ---
