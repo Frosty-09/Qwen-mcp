@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "qwen-mcp": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "/ABSOLUTE/PATH/TO/Qwen-mcp",
+        "qwen-mcp"
+      ],
+      "env": {
+        "QWEN_MCP_ROOT": "/ABSOLUTE/PATH/TO/Qwen-mcp/workspace",
+        "QWEN_MCP_ALLOW_EXTERNAL": "true",
+        "QWEN_MCP_ALLOW_CREATE_EXTERNAL_DIRS": "true",
+        "QWEN_MCP_MAX_READ_BYTES": "2097152"
+      }
+    }
+  }
+}

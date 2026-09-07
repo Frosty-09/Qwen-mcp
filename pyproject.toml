@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qwen-mcp"
+version = "1.0.0"
+description = "Qwen MCP filesystem server"
+requires-python = ">=3.10"
+dependencies = ["mcp>=1.0.0,<2.0.0"]
+
+[project.scripts]
+qwen-mcp = "server:main"
+
+[tool.setuptools]
+py-modules = ["server"]
