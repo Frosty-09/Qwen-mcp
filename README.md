@@ -248,9 +248,11 @@ If your project already lives elsewhere on Windows (for example, in your Documen
 
 1. Create a `.txt` file inside `workspace/external/` named after your project, e.g., `davinci-plugin.txt`.
 2. Inside that file, write the single absolute path to your project folder:
+
    ```text
    C:\Users\YourName\AppData\Roaming\Blackmagic Design\DaVinci Resolve\Support\Fusion\Fuses\MyPlugin
    ```
+
 3. That's it! Qwen Studio can now read and write directly to `davinci-plugin` safely.
 
 _(You can also use the `qwen_register_external_project` tool from inside Qwen Studio to link external directories automatically)._
@@ -317,6 +319,7 @@ Verify that:
 - For internal projects: A folder named `<project-name>` exists inside `workspace/projects/`.
 - For external projects: A text file named `<project-name>.txt` exists inside `workspace/external/` with a valid, absolute path on the first line.
 - You can ask the AI to run `qwen_list_projects` to see all active projects detected by the server.
+
 </details>
 
 <details>
@@ -336,7 +339,7 @@ The AI client attempted to access a path above the designated project directory.
 <details>
 <summary><b>4. uvx is not recognized on Windows</b></summary>
 
-Install Astral `uv` from https://docs.astral.sh/uv/ and restart your terminal or Qwen Studio so your system `PATH` updates.
+Install Astral `uv` from [docs.astral.sh/uv](https://docs.astral.sh/uv/) and restart your terminal or Qwen Studio so your system `PATH` updates.
 
 </details>
 
