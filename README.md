@@ -28,6 +28,8 @@ A dedicated, safe Model Context Protocol (MCP) server that empowers **Qwen Studi
 
 ---
 
+<a id="why-this-exists"></a>
+
 ## 💡 Why This Exists
 
 Desktop AI environments—such as **Qwen Studio**—and complex creative workstation software (like **DaVinci Resolve Studio**) operate within protected sandbox boundaries. By design, they cannot freely browse, modify, or control files on your Windows machine.
@@ -44,6 +46,8 @@ When you want an AI assistant to assist with your codebase, automate scripting, 
 With Qwen MCP, Qwen Studio can autonomously explore your project tree, read files, write code, append changes, rename files, and perform regex searches—**strictly inside the project folders you choose to connect**.
 
 ---
+
+<a id="how-it-works"></a>
 
 ## ⚙️ How It Works
 
@@ -74,6 +78,8 @@ With Qwen MCP, Qwen Studio can autonomously explore your project tree, read file
 
 ---
 
+<a id="features"></a>
+
 ## ✨ Features
 
 - 🛡️ **Strict Path Traversal Protection**: Prevents directory traversal attacks (`../`). File operations cannot escape the designated project boundary.
@@ -86,6 +92,8 @@ With Qwen MCP, Qwen Studio can autonomously explore your project tree, read file
 - 🔒 **Drive Root Protection**: Explicitly blocks mounting Windows drive roots (like `C:\`) for maximum system safety.
 
 ---
+
+<a id="workspace-architecture"></a>
 
 ## 🏗️ Workspace Architecture
 
@@ -104,6 +112,8 @@ Qwen-mcp/
 ```
 
 ---
+
+<a id="download-from-github"></a>
 
 ## 📥 Download from GitHub
 
@@ -125,6 +135,8 @@ cd Qwen-mcp
 
 ---
 
+<a id="prerequisites"></a>
+
 ## 📋 Prerequisites
 
 - **Python 3.10+**: [Download Python](https://www.python.org/downloads/) _(ensure "Add Python to PATH" is checked on Windows)_.
@@ -136,6 +148,8 @@ uv --version
 ```
 
 ---
+
+<a id="zero-effort-quick-start"></a>
 
 ## 🚀 Zero-Effort Quick Start
 
@@ -165,6 +179,8 @@ chmod +x install.sh run.sh
 ```
 
 ---
+
+<a id="connecting-to-qwen-studio--other-mcp-clients"></a>
 
 ## ⚙️ Connecting to Qwen Studio & Other MCP Clients
 
@@ -210,6 +226,8 @@ Add the server configuration into your client's MCP settings file (such as Qwen 
 
 ---
 
+<a id="feeding-your-projects-to-qwen-studio"></a>
+
 ## 📂 Feeding Your Projects to Qwen Studio
 
 Once Qwen MCP is connected, you have two effortless ways to grant Qwen Studio access to your projects:
@@ -239,6 +257,8 @@ _(You can also use the `qwen_register_external_project` tool from inside Qwen St
 
 ---
 
+<a id="available-mcp-tools"></a>
+
 ## 🧰 Available MCP Tools
 
 Qwen Studio automatically receives access to these 12 filesystem tools:
@@ -260,6 +280,8 @@ Qwen Studio automatically receives access to these 12 filesystem tools:
 
 ---
 
+<a id="environment-variables"></a>
+
 ## 🔧 Environment Variables
 
 You can configure operational limits via environment variables in your client config:
@@ -273,6 +295,8 @@ You can configure operational limits via environment variables in your client co
 
 ---
 
+<a id="security--sandboxing"></a>
+
 ## 🔒 Security & Sandboxing
 
 - **Directory Traversal Defense**: All paths are resolved and validated using strict containment checks. Any attempt by the AI to escape using `../../` triggers an immediate `PermissionError`.
@@ -280,6 +304,8 @@ You can configure operational limits via environment variables in your client co
 - **Isolated Control**: Setting `QWEN_MCP_ALLOW_EXTERNAL=false` restricts the server exclusively to files inside `workspace/projects/`.
 
 ---
+
+<a id="troubleshooting--faq"></a>
 
 ## ❓ Troubleshooting & FAQ
 
@@ -315,6 +341,8 @@ Install Astral `uv` from https://docs.astral.sh/uv/ and restart your terminal or
 </details>
 
 ---
+
+<a id="license"></a>
 
 ## 📄 License
 
