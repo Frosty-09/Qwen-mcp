@@ -2,40 +2,86 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Protocol MCP](https://img.shields.io/badge/MCP-1.0+-green.svg)](https://modelcontextprotocol.io)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)]()
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](#prerequisites)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A secure, high-performance [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that gives AI assistants (Qwen, Claude Desktop, Antigravity, Cursor, Cline, Roo Code, etc.) controlled read, write, and search access to designated project workspaces.
+A dedicated, safe Model Context Protocol (MCP) server that empowers **Qwen Studio** and other desktop AI environments with controlled read, write, search, and management access to your local Windows files and projects.
 
 ---
 
 ## 📑 Table of Contents
 
+- [Why This Exists](#why-this-exists)
+- [How It Works](#how-it-works)
 - [Features](#features)
 - [Workspace Architecture](#workspace-architecture)
 - [Download from GitHub](#download-from-github)
 - [Prerequisites](#prerequisites)
-- [Installation and Setup](#installation-and-setup)
-  - [Method 1: Zero-Install with `uvx` (Recommended)](#method-1-zero-install-with-uvx-recommended)
-  - [Method 2: Standard Python Virtual Environment](#method-2-standard-python-virtual-environment)
-- [MCP Client Configuration](#mcp-client-configuration)
+- [Zero-Effort Quick Start](#zero-effort-quick-start)
+- [Connecting to Qwen Studio & Other MCP Clients](#connecting-to-qwen-studio--other-mcp-clients)
+- [Feeding Your Projects to Qwen Studio](#feeding-your-projects-to-qwen-studio)
 - [Available MCP Tools](#available-mcp-tools)
 - [Environment Variables](#environment-variables)
-- [Security and Sandboxing](#security-and-sandboxing)
-- [Troubleshooting and FAQ](#troubleshooting-and-faq)
+- [Security & Sandboxing](#security--sandboxing)
+- [Troubleshooting & FAQ](#troubleshooting--faq)
+- [License](#license)
+
+---
+
+## 💡 Why This Exists
+
+Desktop AI environments—such as **Qwen Studio**—and complex creative workstation software (like **DaVinci Resolve Studio**) operate within protected sandbox boundaries. By design, they cannot freely browse, modify, or control files on your Windows machine. 
+
+When you want an AI assistant to assist with your codebase, automate scripting, or build plugins:
+- ❌ **The Old Way**: You are forced to manually copy and paste code back and forth between your editor and the AI chat window. The AI has zero context about the rest of your project structure, cannot verify changes, and cannot create or edit files directly.
+- ❌ **The Dangerous Way**: Giving an AI broad, unrestricted terminal or OS-level access risks accidental file deletion or damage to critical Windows system directories.
+
+### The Solution: Qwen MCP
+**Qwen MCP** acts as a secure, purpose-built bridge. It lets you "feed" specific local folders and external projects directly to Qwen Studio through the standardized **Model Context Protocol (MCP)**. 
+
+With Qwen MCP, Qwen Studio can autonomously explore your project tree, read files, write code, append changes, rename files, and perform regex searches—**strictly inside the project folders you choose to connect**.
+
+---
+
+## ⚙️ How It Works
+
+```text
+┌─────────────────────────┐          JSON-RPC (stdio)          ┌───────────────────────────┐
+│       Qwen Studio       │ ◄────────────────────────────────► │     Qwen MCP Server       │
+│   (Desktop AI Client)   │                                    │        (Python/uvx)       │
+└─────────────────────────┘                                    └─────────────┬─────────────┘
+                                                                             │ Controlled Sandboxed Access
+                                                 ┌───────────────────────────┴───────────────────────────┐
+                                                 ▼                                                       ▼
+                                    ┌────────────────────────┐                             ┌────────────────────────┐
+                                    │   Internal Projects    │                             │   External Projects    │
+                                    │  workspace/projects/*  │                             │  Shortcut .txt Pointers│
+                                    └────────────────────────┘                             └───────────┬────────────┘
+                                                                                                       │ Maps to
+                                                                                                       ▼
+                                                                                           ┌────────────────────────┐
+                                                                                           │ Any Folder on Windows  │
+                                                                                           │ e.g. DaVinci Fuses,    │
+                                                                                           │ Scripts, Web Projects  │
+                                                                                           └────────────────────────┘
+```
+
+1. **You launch or connect the MCP server** in your Qwen Studio configuration (handled automatically via `uvx` with zero installation).
+2. **You feed your project** either by placing it into the internal `workspace/projects/` folder or by adding a lightweight `.txt` link inside `workspace/external/` pointing to any folder on your computer.
+3. **Qwen Studio takes over**: It queries the server tools to inspect files, execute changes, and search code with complete sandbox protection.
 
 ---
 
 ## ✨ Features
 
-- 🛡️ **Sandbox Security**: Built-in protection against directory traversal attacks (`../`). AI clients can only interact within project boundaries.
-- 📁 **Dual Project Modes**:
-  - **Internal Projects**: Self-contained directories inside `workspace/projects/`.
-  - **External Projects**: Mount any folder on your machine via `.txt` link shortcuts without duplicating or moving files.
-- ⚡ **Zero-Config Execution**: Launch seamlessly with `uvx` without manually creating virtual environments.
-- 🔍 **In-File Text Search**: Fast string and pattern search across files with line numbers and preview snippets.
-- 🛠️ **Full Filesystem Toolkit**: Create, list, read, write, append, rename/move, and delete files or folders.
-- 🗜️ **Binary & UTF-8 Support**: Reads and writes text as standard UTF-8; automatically encodes binary data in Base64.
+- 🛡️ **Strict Path Traversal Protection**: Prevents directory traversal attacks (`../`). File operations cannot escape the designated project boundary.
+- 🔗 **Dual Project Mapping**:
+  - **Internal Projects**: Store projects directly in `workspace/projects/<name>`.
+  - **External Shortcuts**: Mount folders anywhere on your drive (e.g. DaVinci Resolve scripts, desktop code) via 1-line `.txt` link files without moving or copying original files.
+- ⚡ **Zero-Effort Execution**: Automatically launches via Astral `uvx` without requiring manual virtual environments or dependency installs.
+- 🔍 **In-File Text Search**: Deep regex and string search across files with line numbers and preview matches.
+- 🛠️ **Full Filesystem Capabilities**: List directory structures, read UTF-8 and binary (Base64) files, write, append, rename/move, and delete.
+- 🔒 **Drive Root Protection**: Explicitly blocks mounting Windows drive roots (like `C:\`) for maximum system safety.
 
 ---
 
@@ -43,48 +89,25 @@ A secure, high-performance [Model Context Protocol (MCP)](https://modelcontextpr
 
 ```text
 Qwen-mcp/
-├── server.py               # FastMCP server implementation
+├── server.py               # FastMCP core filesystem engine
 ├── pyproject.toml          # Packaging metadata & entry point
-├── requirements.txt        # Python dependencies
-├── install.cmd / .sh       # Automated installation helper scripts
-├── run.cmd / .sh           # Server launcher helper scripts
-└── workspace/              # Root workspace directory (customizable)
+├── requirements.txt        # Python dependencies (mcp>=1.0.0)
+├── install.cmd / .sh       # Helper installation scripts (optional)
+├── run.cmd / .sh           # Helper launch scripts (optional)
+└── workspace/              # Root workspace directory
     ├── projects/           # Internal projects live here
     │   └── my-project/     # AI accesses as "my-project"
-    └── external/           # Shortcut pointer files for external folders
-        └── desktop-app.txt # Points to an external path on your machine
+    └── external/           # External project shortcut link files
+        └── davinci-app.txt # 1-line text file pointing to external folder
 ```
-
-### 1. Internal Projects
-
-Any folder created inside `workspace/projects/<project-name>` is directly accessible by its folder name:
-
-- Folder path: `workspace/projects/ecommerce-api`
-- AI Project Name: `ecommerce-api`
-
-### 2. External Projects
-
-To expose an existing project located anywhere on your computer without moving it, create a `<project-name>.txt` file inside `workspace/external/` (or directly inside `workspace/`).
-
-Inside `workspace/external/desktop-app.txt`:
-
-```text
-C:\Users\YourName\Desktop\my-existing-app
-```
-
-_(On Linux/macOS, use standard paths like `/home/yourname/Desktop/my-existing-app`)_
-
-The AI can now interact with this external folder using the project name `desktop-app`.
 
 ---
 
 ## 📥 Download from GitHub
 
-You can obtain the project files using either of the following methods:
+Choose the method that works best for you:
 
 ### Option A: Clone via Git (Recommended)
-
-Open your terminal or PowerShell and run:
 
 ```bash
 git clone https://github.com/<your-username>/Qwen-mcp.git
@@ -93,48 +116,37 @@ cd Qwen-mcp
 
 ### Option B: Download as a ZIP Archive
 
-1. Visit the repository page on **GitHub**.
-2. Click the green **`<> Code`** button located at the top right of the file list.
-3. Click **`Download ZIP`**.
-4. Extract the `.zip` archive to a folder on your computer (e.g. `D:/MCPs/Qwen-mcp` or `~/MCPs/Qwen-mcp`).
-5. Open your terminal or Command Prompt inside the extracted folder.
+1. On the **GitHub** repository page, click the green **`<> Code`** button.
+2. Select **`Download ZIP`**.
+3. Extract the ZIP file to your preferred folder (e.g., `D:\MCPs\Qwen-mcp` or `C:\Users\YourUser\Qwen-mcp`).
+4. Open the folder in your terminal or command prompt.
 
 ---
 
 ## 📋 Prerequisites
 
-- **Python 3.10 or higher**: [Download Python](https://www.python.org/downloads/) _(make sure to check "Add Python to PATH" on Windows)_.
-- _(Recommended)_ **Astral `uv`**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/) for ultra-fast, zero-setup execution.
-
----
-
-## 🚀 Installation and Setup
-
-### Method 1: Zero-Install with `uvx` (Recommended)
-
-When using `uvx`, you do **not** need to create a virtual environment or install dependencies manually. Your MCP client will execute the server on demand.
-
-Make sure `uv` is installed:
+- **Python 3.10+**: [Download Python](https://www.python.org/downloads/) *(ensure "Add Python to PATH" is checked on Windows)*.
+- **Astral `uv` (Recommended)**: [Install uv](https://docs.astral.sh/uv/getting-started/installation/) for instant, zero-setup execution.
 
 ```bash
-# Verify installation
+# Verify uv installation
 uv --version
 ```
 
+---
+
+## 🚀 Zero-Effort Quick Start
+
+### Method 1: Using `uvx` (Zero-Install, Recommended)
+
+You do **not** need to create virtual environments or manually install dependencies. `uvx` will automatically install requirements in an isolated cache and run the server on demand.
+
 ### Method 2: Standard Python Virtual Environment
 
-If you prefer using standard Python:
+If you prefer a traditional Python virtual environment:
 
 #### On Windows:
-
-Run the automated batch script:
-
-```cmd
-install.cmd
-```
-
-_Or manually run:_
-
+Double-click `install.cmd` or run:
 ```cmd
 python -m venv .venv
 .venv\Scripts\activate
@@ -142,27 +154,16 @@ pip install -r requirements.txt
 ```
 
 #### On Linux / macOS:
-
-Run the automated shell script:
-
 ```bash
 chmod +x install.sh run.sh
 ./install.sh
 ```
 
-_Or manually run:_
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
 ---
 
-## ⚙️ MCP Client Configuration
+## ⚙️ Connecting to Qwen Studio & Other MCP Clients
 
-Add `qwen-mcp` to your MCP client configuration file (e.g., `claude_desktop_config.json`, `mcp_config.json`, or Cursor / Cline / Antigravity MCP settings).
+Add the server configuration into your client's MCP settings file (such as Qwen Studio, Claude Desktop, Antigravity IDE, Cursor, Cline, or Roo Code).
 
 ### Configuration Using `uvx` (Recommended)
 
@@ -171,7 +172,11 @@ Add `qwen-mcp` to your MCP client configuration file (e.g., `claude_desktop_conf
   "mcpServers": {
     "qwen-mcp": {
       "command": "uvx",
-      "args": ["--from", "/ABSOLUTE/PATH/TO/Qwen-mcp", "qwen-mcp"],
+      "args": [
+        "--from",
+        "/ABSOLUTE/PATH/TO/Qwen-mcp",
+        "qwen-mcp"
+      ],
       "env": {
         "QWEN_MCP_ALLOW_EXTERNAL": "true"
       }
@@ -193,7 +198,9 @@ Add `qwen-mcp` to your MCP client configuration file (e.g., `claude_desktop_conf
   "mcpServers": {
     "qwen-mcp": {
       "command": "python",
-      "args": ["/ABSOLUTE/PATH/TO/Qwen-mcp/server.py"],
+      "args": [
+        "/ABSOLUTE/PATH/TO/Qwen-mcp/server.py"
+      ],
       "env": {
         "QWEN_MCP_ALLOW_EXTERNAL": "true"
       }
@@ -202,80 +209,106 @@ Add `qwen-mcp` to your MCP client configuration file (e.g., `claude_desktop_conf
 }
 ```
 
-_(On Windows, you can specify the full interpreter path if `python` is not on your global PATH, e.g., `D:/Root/DummyCode/Experiment/MCPs/Qwen-mcp/.venv/Scripts/python.exe`)_.
+---
+
+## 📂 Feeding Your Projects to Qwen Studio
+
+Once Qwen MCP is connected, you have two effortless ways to grant Qwen Studio access to your projects:
+
+### 1. The Direct Folder Method (Internal)
+Simply create or copy your project folder inside `workspace/projects/`:
+```text
+workspace/projects/my-video-tool/
+```
+Qwen Studio will now recognize and interact with this project by the name `my-video-tool`.
+
+### 2. The Shortcut Pointer Method (External — Recommended for Existing Work)
+If your project already lives elsewhere on Windows (for example, in your Documents, Desktop, or DaVinci Resolve directories), you don't need to move it!
+
+1. Create a `.txt` file inside `workspace/external/` named after your project, e.g., `davinci-plugin.txt`.
+2. Inside that file, write the single absolute path to your project folder:
+   ```text
+   C:\Users\YourName\AppData\Roaming\Blackmagic Design\DaVinci Resolve\Support\Fusion\Fuses\MyPlugin
+   ```
+3. That's it! Qwen Studio can now read and write directly to `davinci-plugin` safely.
+
+*(You can also use the `qwen_register_external_project` tool from inside Qwen Studio to link external directories automatically).*
 
 ---
 
 ## 🧰 Available MCP Tools
 
-Once connected, your AI assistant has access to the following 12 tools:
+Qwen Studio automatically receives access to these 12 filesystem tools:
 
-| Tool                             | Description                                                                            | Key Arguments                                                                 |
-| :------------------------------- | :------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| `qwen_status`                    | Returns server health, active workspace directory, and security flags.                 | _None_                                                                        |
-| `qwen_list_projects`             | Lists all detected internal projects and linked external shortcuts.                    | _None_                                                                        |
-| `qwen_create_project`            | Creates a new internal project folder inside `workspace/projects/`.                    | `name` (string)                                                               |
-| `qwen_register_external_project` | Links an external directory by saving its path into a `.txt` link file.                | `name`, `path`, `create` (optional bool)                                      |
-| `qwen_resolve_project`           | Resolves any registered project name to its actual absolute filesystem path.           | `project` (string)                                                            |
-| `qwen_list_files`                | Lists files and folders with optional glob filtering and recursion.                    | `project`, `path` (default `""`), `pattern` (default `*`), `recursive` (bool) |
-| `qwen_read_file`                 | Reads file content. Returns clean UTF-8 text or Base64 binary string.                  | `project`, `path`                                                             |
-| `qwen_write_file`                | Creates or overwrites a file (auto-creates intermediate directories).                  | `project`, `path`, `content`, `encoding`, `create_dirs`                       |
-| `qwen_append_file`               | Appends content to an existing file (creates file if it does not exist).               | `project`, `path`, `content`, `encoding`, `create_dirs`                       |
-| `qwen_delete_file`               | Deletes a file or directory (`recursive=true` required for non-empty folders).         | `project`, `path`, `recursive` (bool)                                         |
-| `qwen_rename_file`               | Renames or moves a file or directory within a project.                                 | `project`, `old_path`, `new_path`                                             |
-| `qwen_search_files`              | Performs string or regex search across files, reporting line numbers and text matches. | `project`, `query`, `path`, `pattern`, `case_sensitive`, `max_results`        |
+| Tool | Description | Key Arguments |
+| :--- | :--- | :--- |
+| `qwen_status` | Checks server health, active workspace directory, and security flags. | _None_ |
+| `qwen_list_projects` | Lists all internal and external connected projects. | _None_ |
+| `qwen_create_project` | Creates a new project folder inside `workspace/projects/`. | `name` (string) |
+| `qwen_register_external_project` | Registers an external folder path via a `.txt` shortcut file. | `name`, `path`, `create` (bool) |
+| `qwen_resolve_project` | Resolves any project name to its actual absolute filesystem path. | `project` (string) |
+| `qwen_list_files` | Recursively or shallowly lists files and subdirectories. | `project`, `path`, `pattern`, `recursive` |
+| `qwen_read_file` | Reads file content as clean UTF-8 text or Base64 (for binaries). | `project`, `path` |
+| `qwen_write_file` | Writes or overwrites a file (auto-creates directories). | `project`, `path`, `content`, `encoding` |
+| `qwen_append_file` | Appends text or binary content to an existing or new file. | `project`, `path`, `content`, `encoding` |
+| `qwen_delete_file` | Deletes a file or directory (`recursive=true` for folders). | `project`, `path`, `recursive` |
+| `qwen_rename_file` | Renames or moves a file/folder within a project. | `project`, `old_path`, `new_path` |
+| `qwen_search_files` | Searches text/regex inside project files with line numbers. | `project`, `query`, `path`, `pattern`, `case_sensitive` |
 
 ---
 
 ## 🔧 Environment Variables
 
-You can customize the server behavior by defining environment variables in your client configuration:
+You can configure operational limits via environment variables in your client config:
 
-| Variable                              | Default              | Description                                                                |
-| :------------------------------------ | :------------------- | :------------------------------------------------------------------------- |
-| `QWEN_MCP_ROOT`                       | `Qwen-mcp/workspace` | The directory where `projects/` and `external/` reside.                    |
-| `QWEN_MCP_ALLOW_EXTERNAL`             | `true`               | When set to `false`, disables access to external `.txt` project shortcuts. |
-| `QWEN_MCP_ALLOW_CREATE_EXTERNAL_DIRS` | `true`               | Allows auto-creating external directory targets if they do not yet exist.  |
-| `QWEN_MCP_MAX_READ_BYTES`             | `2097152` _(2 MB)_   | Max bytes read before truncating or streaming file content.                |
-
----
-
-## 🔒 Security and Sandboxing
-
-- **Strict Path Containment**: Any attempt by an AI client to access files outside the designated project root (e.g. `../../Windows/System32` or `../../etc/passwd`) raises a `PermissionError`.
-- **System Root Protection**: Registering root filesystem drives (e.g. `C:\` or `/`) as projects is explicitly disallowed.
-- **Controlled Exposure**: Set `QWEN_MCP_ALLOW_EXTERNAL=false` if you want the server to strictly restrict file operations to the local `workspace/projects/` directory only.
+| Variable | Default | Description |
+| :--- | :--- | :--- |
+| `QWEN_MCP_ROOT` | `workspace/` | Path where `projects/` and `external/` are located. |
+| `QWEN_MCP_ALLOW_EXTERNAL` | `true` | Allows or blocks mapping external project shortcuts. |
+| `QWEN_MCP_ALLOW_CREATE_EXTERNAL_DIRS` | `true` | Automatically creates missing target directories when linking. |
+| `QWEN_MCP_MAX_READ_BYTES` | `2097152` *(2 MB)* | File size threshold before content is truncated or converted. |
 
 ---
 
-## ❓ Troubleshooting and FAQ
+## 🔒 Security & Sandboxing
+
+- **Directory Traversal Defense**: All paths are resolved and validated using strict containment checks. Any attempt by the AI to escape using `../../` triggers an immediate `PermissionError`.
+- **Protected Roots**: Windows drive roots (`C:\`, `D:\`) cannot be registered as project sandboxes.
+- **Isolated Control**: Setting `QWEN_MCP_ALLOW_EXTERNAL=false` restricts the server exclusively to files inside `workspace/projects/`.
+
+---
+
+## ❓ Troubleshooting & FAQ
 
 <details>
-<summary><b>1. Error: "Project '&lt;name&gt;' not found"</b></summary>
+<summary><b>1. Why can't Qwen Studio find my project?</b></summary>
 
-Ensure either:
-
-- A folder named `<name>` exists inside `workspace/projects/`, or
-- A link file named `<name>.txt` exists inside `workspace/external/` pointing to a valid absolute directory path.
-
+Verify that:
+- For internal projects: A folder named `<project-name>` exists inside `workspace/projects/`.
+- For external projects: A text file named `<project-name>.txt` exists inside `workspace/external/` with a valid, absolute path on the first line.
+- You can ask the AI to run `qwen_list_projects` to see all active projects detected by the server.
 </details>
 
 <details>
-<summary><b>2. Error: "Path escapes project root"</b></summary>
+<summary><b>2. How do I give Qwen Studio access to DaVinci Resolve or Fusion scripts?</b></summary>
 
-The requested relative path traverses above the project folder. Ensure paths provided to file tools do not use `../` to back out of the project sandbox.
-
+Create a text file `workspace/external/davinci-scripts.txt` and paste the path to your DaVinci Resolve Fusion Scripts or Fuses directory. In Qwen Studio, refer to the project as `davinci-scripts`.
 </details>
 
 <details>
-<summary><b>3. MCP client does not find the <code>uvx</code> command</b></summary>
+<summary><b>3. Error: "Path escapes project root"</b></summary>
 
-Make sure `uv` is installed and available in your system's `PATH`. Restart your terminal or MCP host app (e.g. Claude Desktop) after installing `uv`.
+The AI client attempted to access a path above the designated project directory. All file operations must stay within the root of the targeted project.
+</details>
 
+<details>
+<summary><b>4. uvx is not recognized on Windows</b></summary>
+
+Install Astral `uv` from https://docs.astral.sh/uv/ and restart your terminal or Qwen Studio so your system `PATH` updates.
 </details>
 
 ---
 
 ## 📄 License
 
-Distributed under the [MIT License](LICENSE). Feel free to use, modify, and integrate into your own AI workflows.
+Distributed under the [MIT License](LICENSE). Built for seamless, safe AI development.
